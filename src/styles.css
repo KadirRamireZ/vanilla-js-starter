@@ -1,0 +1,157 @@
+body {
+  background-color: rgb(216, 216, 216);
+  height: auto;
+  font-family: "Prompt", sans-serif;
+  text-align: center;
+}
+
+.contenedor {
+  max-width: 80%;
+  width: auto;
+  height: auto;
+  margin: auto;
+  border: 3px solid rgb(255, 255, 255);
+  padding: 3%;
+  background-color: rgb(255, 255, 255);
+}
+
+/*AGREGAR TAREA*/
+
+.agregarTarea input {
+  padding: 1.5%;
+  margin-right: 77%;
+  width: 40;
+}
+
+.agregarTarea input::placeholder {
+  font-size: 1.1rem;
+  color: rgb(157, 154, 154);
+}
+
+/*SECCION DE TAREA */
+
+.seccionTarea h3 {
+  color: rgb(0, 0, 0);
+  margin-bottom: 20px;
+}
+
+.seccionTarea li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgb(255, 255, 255);
+  padding: 10px;
+  color: rgb(0, 0, 0);
+  margin: 1% 0;
+  border: 1px solid black;
+}
+.seccionTarea i {
+  font-size: 25px;
+}
+
+.seccionTarea > ul p {
+  font-size: 1.2rem;
+  color: black;
+}
+
+/*Contador*/
+
+#contador {
+  border-radius: 50%;
+  border: solid 2px #000000;
+  width: 50px;
+  height: 50px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 47.5%;
+  color: rgb(0, 0, 0);
+}
+
+p {
+  color: rgb(0, 0, 0);
+}
+
+#enter {
+  background-color: rgb(78, 78, 181);
+  border: none;
+  color: rgb(255, 255, 255);
+  padding: 1%;
+  margin-top: 10px;
+  margin-right: 75%;
+  font-size: x-large;
+}
+
+/*ventana modal */
+#btn-modal {
+  display: none;
+}
+.container-modal {
+  width: 50%;
+  height: 50%;
+  position: fixed;
+  top: 30%;
+  left: 30%;
+  display: none;
+
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.content-modal {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  background-color: #9791ae;
+  border-radius: 4px;
+  box-shadow: 10px 8px rgb(210, 208, 208);
+}
+.content-modal h2 {
+  margin-bottom: 15px;
+}
+.content-modal p {
+  padding: 15px 0px;
+  border-top: 1px solid #dbdbdb;
+  border-bottom: 1px solid #dbdbdb;
+}
+.content-modal .btn-cerrar {
+  width: 100%;
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+}
+.content-modal .btn-cerrar label {
+  padding: 7px 10px;
+  background-color: #5488a3;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 300ms ease;
+}
+.content-modal .btn-cerrar label:hover {
+  background-color: #185e83;
+}
+.cerrar-modal {
+  width: 100%;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+@media screen and (max-width: 800px) {
+  .content-modal {
+    width: 90%;
+  }
+}
+
+#tareaspendientes.show {
+  display: block;
+}
+
+#tareaspendientes {
+  display: none;
+  color: hsl(200, 25%, 91%);
+}
