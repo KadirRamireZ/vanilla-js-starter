@@ -1,3 +1,5 @@
+import { sendPostRequest, fetchTaskData, deleteData, putData } from "./API.js";
+
 const fecha = document.querySelector("#fecha");
 const lista = document.querySelector("#lista");
 const elemento = document.querySelector("#elemento");
@@ -8,10 +10,19 @@ const textpend = document.querySelector("#tareaspendientes");
 const check = "fa-check-circle";
 const uncheck = "fa-circle";
 
-let LIST;
-
+let LIST = [];
 let id;
-const insertarTarea = () => {
+
+window.addEventListener("DOMContentLoaded", cargarTarea);
+
+async function cargarTarea() {
+  let tareas = await fetchTaskData();
+  tareas.forEach((tareaa) => {
+    agregarTarea(tareaa.id, tareaa.texto);
+  });
+}
+
+const insertarTarea = async () => {
   let texto = input.value.trim();
   console.log(texto);
   let valorc = "";
@@ -19,17 +30,20 @@ const insertarTarea = () => {
   if (texto != valorc) {
     const tarea = input.value;
     if (tarea) {
-      agregarTarea(tarea, id, false, false);
-
-      LIST.push({
+      let nuevaTarea = {
         nombre: tarea,
-        id: id,
+        // id: id,
         realizado: false,
         eliminado: false,
-      });
-      localStorage.setItem("TODO", JSON.stringify(LIST));
-      id++;
-      input.value = "";
+      };
+
+      LIST.push(nuevaTarea);
+      let saveData = await sendPostRequest(nuevaTarea);
+      agregarTarea(saveData.nombre, saveData.id, false, false);
+
+      // localStorage.setItem("TODO", JSON.stringify(LIST));
+      // id++;
+      // input.value = "";
     }
   } else {
     let Modal = document.getElementById("Modal");
@@ -40,25 +54,8 @@ const insertarTarea = () => {
 function pulsar(e) {
   if (e.keyCode === 13 && !e.shiftKey) {
     e.preventDefault();
-    const tarea = input.value.trim();
 
-    if (tarea) {
-      agregarTarea(tarea, id, false, false);
-      LIST.push({
-        nombre: tarea,
-        id: id,
-        realizado: false,
-        eliminado: false,
-      });
-      localStorage.setItem("TODO", JSON.stringify(LIST));
-
-      input.value = "";
-      id++;
-      console.log(LIST);
-    } else {
-      let Modal = document.getElementById("Modal");
-      Modal.style.display = "block";
-    }
+    insertarTarea();
   }
 }
 
@@ -77,17 +74,16 @@ function agregarTarea(tarea, id, realizado, eliminado) {
   const REALIZADO = realizado ? check : uncheck; // si realizado es verdadero check si no uncheck
 
   const LINE = realizado ? "lineThrough" : "";
-
+  textpend.style.display = "none";
   const elemento = `
-                        <li id="elemento">
-                        <i class="far ${REALIZADO}" data="realizado" id="${id}"></i>
+                        <li id="elemento" id="${id}">
+                        <i class="far ${REALIZADO}" data="realizado"></i>
                         <p class="text ${LINE}">${tarea}</p>
-                        <i class="fas fa-trash de" data="eliminado" id="${id}"></i> 
+                        <i class="fas fa-trash de" data="eliminado" id="${id}"> </i> 
                         </li>
-                    `;
+                     `;
 
   lista.insertAdjacentHTML("beforeend", elemento);
-  textpend.style.display = "none";
 }
 
 //Cotador de tareas realizadas
@@ -104,21 +100,30 @@ function tareaRealizada(element) {
   let elem = element.classList.toggle(check);
   element.classList.toggle(uncheck);
 
+  putData(elem);
+
   if (elem == true) {
     contadorDiv.innerHTML = Number(contadorDiv.innerHTML) + 1;
   } else {
     contadorDiv.innerHTML = Number(contadorDiv.innerHTML) - 1;
   }
+  console.log(elem);
 
   element.parentNode.querySelector(".text").classList.toggle("lineThrough");
+
   LIST[element.id].realizado = LIST[element.id].realizado ? false : true;
 }
 
-function tareaEliminada(element) {
+async function tareaEliminada(element) {
   element.parentNode.parentNode.removeChild(element.parentNode);
-  LIST[element.id].eliminado = true;
+
+  // LIST[element.id].eliminado = true;
+
+  console.log(lista.id);
 
   let checkbox = element.parentNode.querySelector(".fa-check-circle");
+
+  deleteData(element.id);
 
   if (checkbox) {
     let cuent = Number(contadorDiv.textContent);
@@ -143,60 +148,24 @@ lista.addEventListener("click", function (event) {
   } else if (elementData == "eliminado") {
     tareaEliminada(element);
   }
-  localStorage.setItem("TODO", JSON.stringify(LIST));
+  // localStorage.setItem("TODO", JSON.stringify(LIST));
 });
 
-let data = localStorage.getItem("TODO");
-if (data) {
-  LIST = JSON.parse(data);
+// let data = localStorage.getItem("TODO");
+// if (data) {
+//   LIST = JSON.parse(data);
 
-  id = LIST.length;
-  cargarLista(LIST);
-} else {
-  LIST = [];
-  id = 0;
-}
-localStorage.clear();
-function cargarLista(array) {
-  array.forEach(function (item) {
-    agregarTarea(item.nombre, item.id, item.realizado, item.eliminado);
-  });
-}
-
-fetch("http://localhost:3000/api/task", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({}),
-})
-  .then((response) => response.json())
-  .then((data) => {})
-  .catch((error) => {});
-
-
-
-  
-
-fetch("http://localhost:3000/api/task", {
-  method: "DELETE",
-})
-  .then((response) => {})
-  .catch((error) => {});
-
-
-
-
-
-fetch("http://localhost:3000/api/task", {
-  method: "PUT",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({}),
-})
-  .then((response) => response.json())
-  .then((data) => {})
-  .catch((error) => {});
+//   id = LIST.length;
+//   cargarLista(LIST);
+// } else {
+//   LIST = [];
+//   id = 0;
+// }
+// localStorage.clear();
+// function cargarLista(array) {
+//   array.forEach(function (item) {
+//     agregarTarea(item.nombre, item.id, item.realizado, item.eliminado);
+//   });
+// }
 
 export { insertarTarea, pulsar };
