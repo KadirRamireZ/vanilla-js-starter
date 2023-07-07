@@ -13,13 +13,43 @@ const uncheck = "fa-circle";
 let LIST = [];
 let id;
 
-window.addEventListener("DOMContentLoaded", cargarTarea);
+function obtenerHoraActual() {
+  let fecha1 = new Date();
+  let hora = fecha1.getHours();
+  let minutos = fecha1.getMinutes();
+  let segundos = fecha1.getSeconds();
+
+  return hora + ":" + minutos + ":" + segundos;
+}
+
+function actualizarHora() {
+  let horaElemento = document.getElementById("hora");
+  horaElemento.textContent = obtenerHoraActual();
+}
+
+setInterval(actualizarHora, 1000);
+
+let fechaActual = document.getElementById("fechaActual");
+let fecha1 = new Date();
+fechaActual.textContent = fecha1.toLocaleDateString();
+
+document.addEventListener("DOMContentLoaded", cargarTarea);
 
 async function cargarTarea() {
   let tareas = await fetchTaskData();
-  tareas.forEach((tareaa) => {
-    agregarTarea(tareaa.id, tareaa.texto);
+  let contadorAux = 0;
+  tareas.forEach((tarea) => {
+    agregarTarea(tarea.id, tarea.nombre, tarea.check);
   });
+  actualizarContador();
+
+  for (let index = 0; index < tareas.length; index++) {
+    if (tareas[index].realizado == check) {
+      contadorAux++;
+    }
+  }
+
+  contadorDiv.innerHTML = contadorAux;
 }
 
 const insertarTarea = async () => {
@@ -33,13 +63,12 @@ const insertarTarea = async () => {
       let nuevaTarea = {
         nombre: tarea,
         // id: id,
-        realizado: false,
-        eliminado: false,
+        check: false,
       };
 
       LIST.push(nuevaTarea);
       let saveData = await sendPostRequest(nuevaTarea);
-      agregarTarea(saveData.nombre, saveData.id, false, false);
+      agregarTarea(saveData.id, saveData.nombre, false);
 
       // localStorage.setItem("TODO", JSON.stringify(LIST));
       // id++;
@@ -50,6 +79,11 @@ const insertarTarea = async () => {
     Modal.style.display = "block";
   }
 };
+
+function actualizarContador() {
+  const tareas = document.querySelectorAll("." + check);
+  contadorDiv.innerHTML = tareas.length;
+}
 
 function pulsar(e) {
   if (e.keyCode === 13 && !e.shiftKey) {
@@ -66,20 +100,16 @@ modalCloseButton.addEventListener("click", () => {
   modal.style.display = "none";
 });
 
-function agregarTarea(tarea, id, realizado, eliminado) {
-  if (eliminado) {
-    return;
-  } // si existe eliminado es true si no es falso
-
+function agregarTarea(id, tarea, realizado) {
   const REALIZADO = realizado ? check : uncheck; // si realizado es verdadero check si no uncheck
 
   const LINE = realizado ? "lineThrough" : "";
   textpend.style.display = "none";
   const elemento = `
-                        <li id="elemento" id="${id}">
+                        <li id="${id}">
                         <i class="far ${REALIZADO}" data="realizado"></i>
                         <p class="text ${LINE}">${tarea}</p>
-                        <i class="fas fa-trash de" data="eliminado" id="${id}"> </i> 
+                        <i class="fas fa-trash de" data="eliminado" "> </i> 
                         </li>
                      `;
 
@@ -92,38 +122,35 @@ function incrementarContador() {
   let cuenta = Number(contadorDiv.textContent);
   cuenta = cuenta + 1;
   contadorDiv.textContent = cuenta;
+
+  console.log("incrementando", contadorDiv.textContent);
 }
 
 // funcion de Tarea Realizada
 
-function tareaRealizada(element) {
+function tareaRealizada(element, id) {
   let elem = element.classList.toggle(check);
   element.classList.toggle(uncheck);
 
-  putData(elem);
-
-  if (elem == true) {
-    contadorDiv.innerHTML = Number(contadorDiv.innerHTML) + 1;
+  if (elem) {
+    incrementarContador();
+    // putData({ check: true }, id);
   } else {
     contadorDiv.innerHTML = Number(contadorDiv.innerHTML) - 1;
+    // putData({ check: false }, id);
   }
-  console.log(elem);
+  putData({ check: elem }, id);
 
-  element.parentNode.querySelector(".text").classList.toggle("lineThrough");
-
-  LIST[element.id].realizado = LIST[element.id].realizado ? false : true;
+  // element.parentNode.querySelector(".text").classList.toggle("lineThrough");
+  // LIST[element.id].realizado = LIST[element.id].realizado ? false : true;
 }
 
 async function tareaEliminada(element) {
-  element.parentNode.parentNode.removeChild(element.parentNode);
-
   // LIST[element.id].eliminado = true;
-
-  console.log(lista.id);
 
   let checkbox = element.parentNode.querySelector(".fa-check-circle");
 
-  deleteData(element.id);
+  deleteData(element.parentNode.id);
 
   if (checkbox) {
     let cuent = Number(contadorDiv.textContent);
@@ -135,19 +162,24 @@ async function tareaEliminada(element) {
   if (cosa.length === 0) {
     textpend.style.display = "block";
   }
+  element.parentNode.parentNode.removeChild(element.parentNode);
 }
 
 // crear un evento para click en el enter y para habilitar el boton
 
 lista.addEventListener("click", function (event) {
-  const element = event.target;
-  const elementData = element.attributes.data.value;
+  const element = event.target.parentNode; //<li>
+  const elementoI = event.target;
+  const elementData = elementoI.attributes.data.value;
+
+  // element.check = elementData;
 
   if (elementData == "realizado") {
-    tareaRealizada(element);
+    tareaRealizada(elementoI, element.id);
   } else if (elementData == "eliminado") {
-    tareaEliminada(element);
+    tareaEliminada(elementoI);
   }
+
   // localStorage.setItem("TODO", JSON.stringify(LIST));
 });
 

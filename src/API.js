@@ -15,7 +15,7 @@ async function sendPostRequest(task) {
 
 async function fetchTaskData() {
   try {
-    const response = await fetch("http://localhost:3000/api/task");
+    const response = await fetch("http://localhost:3000/api/task/");
     const data = await response.json();
     return data;
   } catch (error) {}
@@ -29,9 +29,9 @@ async function deleteData(id) {
   } catch (error) {}
 }
 
-async function putData(task) {
+async function putData(task, id) {
   try {
-    const response = await fetch(`http://localhost:3000/api/task/${task.id}`, {
+    const response = await fetch(`http://localhost:3000/api/task/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
